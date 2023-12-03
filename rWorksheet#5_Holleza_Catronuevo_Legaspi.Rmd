@@ -1,0 +1,52 @@
+```{r}
+library(rvest)
+library(polite)
+library(dplyr)
+```
+
+```{r}
+url_links <-'https://www.imdb.com/chart/toptv/?ref_=nv_tvv_250'
+webpage<- read_html(url_links)
+```
+
+```{r}
+request <-bow(url_links,
+              user_agent = "educational")
+request
+session_request<-scrape(request)
+```
+
+```{r}
+rank_title <- character(0)
+links <- character(0)
+title_list <- scrape(request) %>%
+  html_nodes('h3.ipc-title__text') %>%
+  html_text
+```
+
+```{r}
+class(title_list)
+title_list_sub <- as.data.frame(title_list[2:51])
+head(title_list_sub)
+tail(title_list_sub)
+
+```
+
+```{r}
+colnames(title_list_sub) <- 'ranks'
+title_list_sub
+```
+
+```{r}
+split_df <- strsplit(as.character(title_list_sub$ranks),".",fixed = TRUE)
+split_df <- data.frame(do.call(rbind,split_df))
+colnames(split_df) <- c("Ranks","Title")
+```
+```{r}
+str(split_df)
+class(split_df)
+head(split_df)
+rank_title <- data.frame(
+  rank_title = split_df)
+write.csv(rank_title,file = "title.csv")
+```
